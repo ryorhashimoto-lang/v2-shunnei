@@ -1,0 +1,73 @@
+import React, { useEffect, useRef } from 'react';
+import LoadingSpinner from './LoadingSpinner';
+import { drawMemorialPhoto } from '../services/renderService';
+
+interface PhotoCanvasProps {
+  originalCropped: string | null;
+  personImage: string | null;
+  isLoading: boolean;
+  loadingMessage: string;
+}
+
+const PhotoCanvas: React.FC<PhotoCanvasProps> = ({ 
+  originalCropped, 
+  personImage,
+  isLoading, 
+  loadingMessage
+}) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const render = async () => {
+      if (!canvasRef.current || !originalCropped) return;
+      
+      const width = 800;
+      const height = 1066;
+      
+      await drawMemorialPhoto({
+        canvas: canvasRef.current,
+        originalCropped,
+        personImage,
+        width,
+        height,
+        isHighRes: false
+      });
+    };
+
+    render();
+  }, [originalCropped, personImage]);
+
+  if (!originalCropped) return null;
+
+  return (
+    <div className="relative w-full max-w-lg mx-auto p-4 md:p-8">
+      <div className="relative group">
+        {/* Decorative frame shadow */}
+        <div className="absolute -inset-1 bg-gradient-to-tr from-gray-300 to-gray-100 rounded-xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
+        
+        <div className="relative aspect-[3/4] overflow-hidden rounded-lg border-[12px] border-white shadow-[0_20px_50px_rgba(0,0,0,0.15)] bg-gray-50">
+          {isLoading && <LoadingSpinner message={loadingMessage} />}
+          <canvas 
+            ref={canvasRef} 
+            className="w-full h-full object-contain block transition-opacity duration-700"
+            style={{ opacity: isLoading ? 0.3 : 1 }}
+          />
+          
+          {/* Subtle overlay to give photographic texture */}
+          <div className="absolute inset-0 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/natural-paper.png')] opacity-[0.03] mix-blend-overlay"></div>
+        </div>
+      </div>
+
+      <div className="mt-8 text-center space-y-1">
+        <p className="text-[11px] text-gray-400 font-sans tracking-[0.3em] font-bold uppercase">
+          Studio Preview
+        </p>
+        <p className="text-[10px] text-gray-300 font-sans">
+          ※ 実際の保存データは高解像度（2700x3600px）で生成されます
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default PhotoCanvas;
