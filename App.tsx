@@ -61,8 +61,32 @@ const App: React.FC = () => {
   };
 
   const handleImageSelected = (base64: string) => {
-    setUploadedImage(base64); 
+    setUploadedImage(base64);
+    // Reset all states for new image
+    setCropConfig(null);
+    setFinalCropConfig(null);
+    setOriginalCropped(null);
+    setPersonImage(null);
+    setAppliedBg(BackgroundOption.None);
+    setAppliedClothing(ClothingOption.None);
+    setCompositePreview(null);
+    setIsFinalCropping(false);
+    
     setAppState(AppState.CROPPING);
+  };
+
+  const handleReset = () => {
+    setUploadedImage(null);
+    setOriginalCropped(null);
+    setPersonImage(null);
+    setCropConfig(null);
+    setFinalCropConfig(null);
+    setCompositePreview(null);
+    setIsFinalCropping(false);
+    setAppliedBg(BackgroundOption.None);
+    setAppliedClothing(ClothingOption.None);
+    setDeceasedName('');
+    setAppState(AppState.UPLOAD);
   };
 
   const handleCropConfirm = (croppedImage: string, config: CropConfig) => {
@@ -262,7 +286,7 @@ const App: React.FC = () => {
                     appliedClothing={appliedClothing}
                     disabled={status.isProcessing} 
                     onDownload={handleDownload} 
-                    onReset={() => setAppState(AppState.UPLOAD)} 
+                    onReset={handleReset} 
                     onStartCrop={handleStartFinalCrop}
                     userPlan={companyInfo!.plan} 
                     usageCount={usageCount} 
